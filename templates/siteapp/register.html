@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Register · {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="auth-card reveal">
+  <h2>Create your account</h2>
+  <p class="muted">It only takes a moment.</p>
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+
+    <div class="form-row{% if form.username.errors %} has-error{% endif %}">
+      <label for="id_username">Username</label>
+      {{ form.username }}
+      {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-row{% if form.email.errors %} has-error{% endif %}">
+      <label for="id_email">Email (optional)</label>
+      {{ form.email }}
+      {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-row{% if form.password1.errors %} has-error{% endif %}">
+      <label for="id_password1">Password</label>
+      {{ form.password1 }}
+      {% for e in form.password1.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-row{% if form.password2.errors %} has-error{% endif %}">
+      <label for="id_password2">Confirm password</label>
+      {{ form.password2 }}
+      {% for e in form.password2.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create account</button>
+  </form>
+  <div class="auth-alt">
+    <span class="muted">Already have an account?</span>
+    <a href="{% url 'login' %}">Login</a>
+  </div>
+</section>
+{% endblock %}
+

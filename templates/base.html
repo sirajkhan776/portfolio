@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Portfolio{% endblock %}</title>
+  <script>
+    (function(){
+      try{
+        var serverPref = "{{ user_prefs.theme|default_if_none:'' }}";
+        var t = null;
+        if (serverPref) {
+          if (serverPref !== 'system') {
+            t = serverPref;
+            try { localStorage.setItem('theme', serverPref); } catch(e) {}
+          } else {
+            try { localStorage.removeItem('theme'); } catch(e) {}
+            t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+          }
+        } else {
+          var local = null;
+          try { local = localStorage.getItem('theme'); } catch(e) {}
+          if (local) { t = local; }
+          else { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark'; }
+        }
+        document.documentElement.setAttribute('data-theme', t);
+        {% if user_prefs and user_prefs.reduce_motion %}
+        document.documentElement.setAttribute('data-reduce', '1');
+        {% else %}
+        document.documentElement.removeAttribute('data-reduce');
+        {% endif %}
+        {% if user_prefs and user_prefs.accent %}
+        document.documentElement.setAttribute('data-accent', '{{ user_prefs.accent }}');
+        {% endif %}
+        {% if user_prefs and user_prefs.density %}
+        document.documentElement.setAttribute('data-density', '{{ user_prefs.density }}');
+        {% endif %}
+        {% if user_prefs and user_prefs.default_section %}
+        document.documentElement.setAttribute('data-default-section', '{{ user_prefs.default_section }}');
+        {% endif %}
+      }catch(e){}
+    })();
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="/">{% block brand %}My Portfolio{% endblock %}</a>
+      <button class="mobile-toggle" data-mobile-nav-toggle aria-label="Toggle navigation">
+        <img class="theme-icon menu-open" src="{% static 'img/menu.svg' %}" alt=""/>
+        <img class="theme-icon menu-close" src="{% static 'img/close.svg' %}" alt=""/>
+      </button>
+      <div class="header-actions">
+        <nav class="primary-nav">
+          <a href="/"><img class="nav-icon" src="{% static 'img/home.svg' %}" alt=""/> <span class="nav-label">Home</span></a>
+          <a href="/#about"><img class="nav-icon" src="{% static 'img/info.svg' %}" alt=""/> <span class="nav-label">About</span></a>
+          <div class="nav-item" data-nav-menu>
+            <a href="/#services" data-nav-menu-toggle><img class="nav-icon" src="{% static 'img/briefcase.svg' %}" alt=""/> <span class="nav-label">Services</span></a>
+            <div class="nav-menu">
+              <div class="nav-menu-col">
+                <div class="nav-menu-title">Management Services</div>
+                <ul>
+                  {% for s in services_menu.management %}
+                    <li><a href="/#services-management">{{ s.title }}</a></li>
+                  {% empty %}
+                    <li><a href="/#services-management">DMS</a></li>
+                    <li><a href="/#services-management">Gym</a></li>
+                    <li><a href="/#services-management">Hospital</a></li>
+                    <li><a href="/#services-management">Shop</a></li>
+                  {% endfor %}
+                </ul>
+                <a class="nav-menu-more" href="/#services-management">See all</a>
+              </div>
+              <div class="nav-menu-col">
+                <div class="nav-menu-title">Digital Services</div>
+                <ul>
+                  {% for s in services_menu.normal %}
+                    <li><a href="/#services-digital">{{ s.title }}</a></li>
+                  {% empty %}
+                    <li><a href="/#services-digital">Consulting</a></li>
+                    <li><a href="/#services-digital">Development</a></li>
+                    <li><a href="/#services-digital">Design</a></li>
+                    <li><a href="/#services-digital">Support</a></li>
+                  {% endfor %}
+                </ul>
+                <a class="nav-menu-more" href="/#services-digital">See all</a>
+              </div>
+            </div>
+          </div>
+          <a href="/#projects"><img class="nav-icon" src="{% static 'img/code.svg' %}" alt=""/> <span class="nav-label">Projects</span></a>
+          <a href="/#experience"><img class="nav-icon" src="{% static 'img/work.svg' %}" alt=""/> <span class="nav-label">Experience</span></a>
+          <a href="/#skills"><img class="nav-icon" src="{% static 'img/skills.svg' %}" alt=""/> <span class="nav-label">Skills</span></a>
+        </nav>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+          <img class="theme-icon theme-icon-moon" src="{% static 'img/moon.svg' %}" alt=""/>
+          <img class="theme-icon theme-icon-sun" src="{% static 'img/sun.svg' %}" alt=""/>
+        </button>
+        <div class="auth">
+          {% if user.is_authenticated %}
+            <div class="user-menu" data-user-menu>
+              <a class="avatar-link" href="#" title="{{ user.get_username }}" data-user-menu-toggle>
+                {% if profile and profile.photo %}
+                  <img class="avatar" src="{{ profile.photo.url }}" alt="Profile"/>
+                {% elif profile and profile.photo_url %}
+                  <img class="avatar" src="{{ profile.photo_url }}" alt="Profile"/>
+                {% else %}
+                  <img class="avatar" src="{% static 'img/avatar.svg' %}" alt="Profile"/>
+                {% endif %}
+              </a>
+              <div class="menu" role="menu">
+                <a role="menuitem" href="{% url 'profile' %}"><img class="menu-icon" src="{% static 'img/user.svg' %}" alt=""/> My profile</a>
+                <a role="menuitem" href="{% url 'preferences' %}"><img class="menu-icon" src="{% static 'img/settings.svg' %}" alt=""/> Preferences</a>
+                <a role="menuitem" href="{% url 'download_vcard' %}"><img class="menu-icon" src="{% static 'img/vcard.svg' %}" alt=""/> Download vCard (.vcf)</a>
+                <a role="menuitem" href="{% url 'download_profile_pdf' %}"><img class="menu-icon" src="{% static 'img/pdf.svg' %}" alt=""/> Download PDF</a>
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" role="menuitem" class="menu-danger"><img class="menu-icon" src="{% static 'img/logout.svg' %}" alt=""/> Logout</button>
+                </form>
+              </div>
+            </div>
+          {% else %}
+            <div class="user-menu" data-user-menu>
+              <a class="avatar-link" href="#" title="Menu" data-user-menu-toggle>
+                <img class="avatar" src="{% static 'img/avatar.svg' %}" alt="Menu"/>
+              </a>
+              <div class="menu" role="menu">
+                <a role="menuitem" href="{% url 'download_vcard' %}"><img class="menu-icon" src="{% static 'img/vcard.svg' %}" alt=""/> Download vCard (.vcf)</a>
+                <a role="menuitem" href="{% url 'download_profile_pdf' %}"><img class="menu-icon" src="{% static 'img/pdf.svg' %}" alt=""/> Download PDF</a>
+                <a role="menuitem" href="{% url 'login' %}"><img class="menu-icon" src="{% static 'img/login.svg' %}" alt=""/> Login</a>
+                <a role="menuitem" href="{% url 'register' %}"><img class="menu-icon" src="{% static 'img/user.svg' %}" alt=""/> Register</a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>&copy; {{ profile.full_name|default:"Your Name" }}</small>
+    </div>
+  </footer>
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Login · {{ block.super }}{% endblock %}
+{% block content %}
+<section class="auth-card reveal">
+  <h2>Welcome back</h2>
+  <p class="muted">Sign in to manage your portfolio.</p>
+  {% if form.errors %}
+    <p class="form-error">Invalid username or password.</p>
+  {% endif %}
+  <form method="post" action="{% url 'login' %}" class="form">
+    {% csrf_token %}
+    <div class="form-row">
+      <label for="id_username">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="form-row">
+      <label for="id_password">Password</label>
+      {{ form.password }}
+    </div>
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}" />
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+  <div class="auth-alt">
+    <span class="muted">No account?</span>
+    <a href="{% url 'register' %}">Create one</a>
+  </div>
+</section>
+{% endblock %}

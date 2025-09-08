@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile · {{ block.super }}{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-text reveal">
+      <h1>{{ profile.full_name }}</h1>
+      {% if profile.title %}<h2 class="subtitle">{{ profile.title }}</h2>{% endif %}
+      {% if profile.bio %}<p class="bio">{{ profile.bio }}</p>{% endif %}
+      <div class="links">
+        {% if profile.github_url %}<a class="icon-link" href="{{ profile.github_url }}" target="_blank" rel="noopener" aria-label="GitHub"><img class="icon" src="{% static 'img/github.svg' %}" alt="GitHub" /></a>{% endif %}
+        {% if profile.email %}<a class="icon-link" href="mailto:{{ profile.email }}" aria-label="Email"><img class="icon" src="{% static 'img/gmail.svg' %}" alt="Email" /></a>{% endif %}
+      </div>
+    </div>
+    {% if profile.photo %}
+      <img class="hero-photo reveal" src="{{ profile.photo.url }}" alt="{{ profile.full_name }}" />
+    {% elif profile.photo_url %}
+      <img class="hero-photo reveal" src="{{ profile.photo_url }}" alt="{{ profile.full_name }}" />
+    {% endif %}
+  </section>
+
+  <section class="reveal" style="margin-top:2rem">
+    <h2>Contact</h2>
+    <ul>
+      {% if profile.email %}
+        {% if not user_prefs or user_prefs.show_email %}
+          <li>Email: <a href="mailto:{{ profile.email }}">{{ profile.email }}</a></li>
+        {% endif %}
+      {% endif %}
+      {% if profile.phone %}
+        {% if not user_prefs or user_prefs.show_phone %}
+          <li>Phone: {{ profile.phone }}</li>
+        {% endif %}
+      {% endif %}
+      {% if profile.website_url %}<li>Website: <a href="{{ profile.website_url }}" target="_blank" rel="noopener">{{ profile.website_url }}</a></li>{% endif %}
+      {% if profile.linkedin_url %}<li>LinkedIn: <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">{{ profile.linkedin_url }}</a></li>{% endif %}
+    </ul>
+  </section>
+{% endblock %}

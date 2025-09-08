@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Preferences · {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="auth-card reveal" style="max-width:720px">
+  <h2 style="margin-top:0">Preferences</h2>
+  {% if messages %}
+    {% for message in messages %}
+      <p class="form-error" style="background:rgba(34,197,94,.12); border-color: rgba(34,197,94,.32); color:#bbf7d0">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  <form method="post" class="form">
+    {% csrf_token %}
+    <fieldset class="form-row">
+      <legend style="font-weight:600">Theme</legend>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem">
+        {% for radio in form.theme %}
+          <label style="display:flex;align-items:center;gap:.35rem;background:var(--panel);padding:.45rem .6rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+            {{ radio.tag }} {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
+      {% for e in form.theme.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </fieldset>
+
+    <div class="form-row">
+      <label style="display:flex;gap:.5rem;align-items:center">
+        {{ form.reduce_motion }} Reduce animations
+      </label>
+      {% for e in form.reduce_motion.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <fieldset class="form-row">
+      <legend style="font-weight:600">Accent color</legend>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem">
+        {% for radio in form.accent %}
+          <label style="display:flex;align-items:center;gap:.45rem;background:var(--panel);padding:.45rem .6rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+            <span class="swatch" data-swatch="{{ radio.choice_value }}"></span>
+            {{ radio.tag }} {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
+      {% for e in form.accent.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </fieldset>
+
+    <fieldset class="form-row">
+      <legend style="font-weight:600">Layout density</legend>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem">
+        {% for radio in form.density %}
+          <label style="display:flex;align-items:center;gap:.35rem;background:var(--panel);padding:.45rem .6rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+            {{ radio.tag }} {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
+      {% for e in form.density.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </fieldset>
+
+    <div class="form-row">
+      <label>Default section</label>
+      {{ form.default_section }}
+      {% for e in form.default_section.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <fieldset class="form-row">
+      <legend style="font-weight:600">Contact visibility</legend>
+      <label style="display:flex;gap:.5rem;align-items:center;margin-top:.25rem">{{ form.show_email }} Show email</label>
+      <label style="display:flex;gap:.5rem;align-items:center;margin-top:.25rem">{{ form.show_phone }} Show phone</label>
+    </fieldset>
+
+    <button class="btn btn-primary" type="submit">Save preferences</button>
+  </form>
+  <p class="muted" style="margin-top:.75rem">Tip: The theme toggle in the header sets a quick local preference. This page lets you save your default preference to your account.</p>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    var root = document.documentElement;
+    var radios = document.querySelectorAll('input[name="theme"]');
+    radios.forEach(function(radio){
+      radio.addEventListener('change', function(){
+        var v = this.value;
+        if (v === 'system') {
+          try { localStorage.removeItem('theme'); } catch(e) {}
+          var t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+          root.setAttribute('data-theme', t);
+        } else {
+          root.setAttribute('data-theme', v);
+          try { localStorage.setItem('theme', v); } catch(e) {}
+        }
+      });
+    });
+    var rm = document.getElementById('id_reduce_motion');
+    if (rm) {
+      rm.addEventListener('change', function(){
+        if (this.checked) root.setAttribute('data-reduce','1'); else root.removeAttribute('data-reduce');
+      });
+    }
+
+    // Accent preview
+    document.querySelectorAll('input[name="accent"]').forEach(function(r){
+      r.addEventListener('change', function(){
+        root.setAttribute('data-accent', this.value);
+      })
+    });
+    // Density preview
+    document.querySelectorAll('input[name="density"]').forEach(function(r){
+      r.addEventListener('change', function(){
+        root.setAttribute('data-density', this.value);
+      })
+    });
+
+    // Default section preview: scroll immediately
+    var sel = document.getElementById('id_default_section');
+    if (sel) {
+      sel.addEventListener('change', function(){
+        var v = this.value;
+        var map = {about:'about',services:'services',projects:'projects',experience:'experience',skills:'skills'};
+        if (map[v]) {
+          var el = document.getElementById(map[v]);
+          if (el) el.scrollIntoView({behavior:'smooth'});
+        } else if (v === 'home') { window.scrollTo({top:0, behavior:'smooth'}); }
+      });
+    }
+  });
+  </script>
+{% endblock %}

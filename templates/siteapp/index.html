@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile.full_name|default:"Portfolio" }}{% endblock %}
+{% block brand %}{{ profile.full_name|default:"Portfolio" }}{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-text reveal">
+      <h1>{{ profile.full_name|default:"Your Name" }}</h1>
+      {% if profile.title %}<h2 class="subtitle">{{ profile.title }}</h2>{% endif %}
+      {% if profile.bio %}<p class="bio">{{ profile.bio }}</p>{% endif %}
+      <div class="links">
+        {% if profile.website_url %}<a class="pill" href="{{ profile.website_url }}" target="_blank" rel="noopener">Website</a>{% endif %}
+        {% if profile.github_url %}
+          <a class="icon-link" href="{{ profile.github_url }}" target="_blank" rel="noopener" aria-label="GitHub">
+            <img class="icon" src="{% static 'img/github.svg' %}" alt="GitHub" />
+          </a>
+        {% endif %}
+        {% if profile.linkedin_url %}<a class="pill" href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
+        {% if profile.email %}
+          {% if not user_prefs or user_prefs.show_email %}
+            <a class="icon-link" href="mailto:{{ profile.email }}" aria-label="Email">
+              <img class="icon" src="{% static 'img/gmail.svg' %}" alt="Email" />
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% if profile.photo %}
+      <img class="hero-photo reveal" src="{{ profile.photo.url }}" alt="{{ profile.full_name }}" />
+    {% elif profile.photo_url %}
+      <img class="hero-photo reveal" src="{{ profile.photo_url }}" alt="{{ profile.full_name }}" />
+    {% endif %}
+  </section>
+
+  <section id="services" class="reveal">
+    <h2>Services</h2>
+    <h3 id="services-management" style="margin-top:1rem">Management Services</h3>
+    <div class="cards" data-stagger="100">
+      {% for s in services_management %}
+        <article class="card reveal service-card">
+          <div class="card-body">
+            <h3>
+              {% if s.icon %}
+                <span class="service-icon">{{ s.icon }}</span>
+              {% else %}
+                <img class="service-svg" src="{% static 'img/building.svg' %}" alt=""/>
+              {% endif %}
+              {{ s.title }}
+            </h3>
+            {% if s.summary %}<p>{{ s.summary }}</p>{% endif %}
+            {% if s.price %}<p class="muted">{{ s.price }}</p>{% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="muted">Add management services (e.g., DMS, Gym, Hospital, Shop) in Admin.</p>
+      {% endfor %}
+    </div>
+
+    <h3 id="services-digital" style="margin-top:1.5rem">Digital Services</h3>
+    <div class="cards" data-stagger="100">
+      {% for s in services_normal %}
+        <article class="card reveal service-card">
+          <div class="card-body">
+            <h3>
+              {% if s.icon %}
+                <span class="service-icon">{{ s.icon }}</span>
+              {% else %}
+                <img class="service-svg" src="{% static 'img/monitor.svg' %}" alt=""/>
+              {% endif %}
+              {{ s.title }}
+            </h3>
+            {% if s.summary %}<p>{{ s.summary }}</p>{% endif %}
+            {% if s.price %}<p class="muted">{{ s.price }}</p>{% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="muted">Add your normal services in Admin.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="about" class="reveal" style="margin: 2rem 0; background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.2rem;">
+    <h2 style="margin-top:0">About Me</h2>
+    {% if profile and profile.bio %}
+      <p>{{ profile.bio }}</p>
+    {% else %}
+      <p class="muted">Add your bio in Profile to show details here.</p>
+    {% endif %}
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="cards" data-stagger="100">
+      {% for project in projects %}
+        <article class="card reveal">
+          {% if project.image_url %}
+            <img src="{{ project.image_url }}" alt="{{ project.title }}" />
+          {% endif %}
+          <div class="card-body">
+            <h3>{{ project.title }}</h3>
+            <p>{{ project.description }}</p>
+            <div class="meta">
+              {% if project.project_url %}<a href="{{ project.project_url }}" target="_blank" rel="noopener">Live</a>{% endif %}
+              {% if project.repo_url %}<a href="{{ project.repo_url }}" target="_blank" rel="noopener">Repo</a>{% endif %}
+            </div>
+            {% if project.skills.all %}
+              <ul class="tags">
+                {% for s in project.skills.all %}
+                  <li>{{ s.name }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p>No projects yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="experience">
+    <h2>Experience</h2>
+    <ul class="timeline" data-stagger="100">
+      {% for exp in experiences %}
+        <li class="reveal">
+          <div class="timeline-content">
+            <h3>{{ exp.role }} — {{ exp.company }}</h3>
+            <p class="dates">
+              {{ exp.start_date|date:"M Y" }} — {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}
+              {% if exp.location %} · {{ exp.location }}{% endif %}
+            </p>
+            <p>{{ exp.description }}</p>
+          </div>
+        </li>
+      {% empty %}
+        <p>No experience added.</p>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section id="skills">
+    <h2>Skills</h2>
+    <div class="skills-grid" data-stagger="60">
+      {% for category, items in skills_by_category.items %}
+        <div class="reveal">
+          <h3>{{ category }}</h3>
+          <ul class="skills">
+            {% for s in items %}
+              <li>
+                <span>{{ s.name }}</span>
+                {% if s.level %}<small class="muted">{{ s.level }}</small>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% empty %}
+        <p>No skills yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
