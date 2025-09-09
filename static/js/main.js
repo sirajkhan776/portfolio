@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       menu.classList.toggle('open');
     });
-    document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target)) close();
-    });
+    const outsideClose = (e) => { if (!menu.contains(e.target)) close(); };
+    document.addEventListener('pointerdown', outsideClose, { passive: true });
+    document.addEventListener('click', outsideClose);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') close();
     });
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       menu.classList.toggle('open');
     });
-    document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target)) close();
-    });
+    const outsideClose = (e) => { if (!menu.contains(e.target)) close(); };
+    document.addEventListener('pointerdown', outsideClose, { passive: true });
+    document.addEventListener('click', outsideClose);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') close();
     });
@@ -69,23 +69,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const headerEl = document.querySelector('.site-header');
   const mobileBtn = document.querySelector('[data-mobile-nav-toggle]');
   if (headerEl && mobileBtn) {
-    const closeNav = () => headerEl.classList.remove('nav-open');
+    const closeNav = () => {
+      headerEl.classList.remove('nav-open');
+      try { mobileBtn.setAttribute('aria-expanded', 'false'); } catch(e) {}
+    };
     mobileBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      headerEl.classList.toggle('nav-open');
+      const next = !headerEl.classList.contains('nav-open');
+      headerEl.classList.toggle('nav-open', next);
+      try { mobileBtn.setAttribute('aria-expanded', next ? 'true' : 'false'); } catch(e) {}
     });
-    // Close when clicking links
-    document.querySelectorAll('.primary-nav a').forEach((a) => a.addEventListener('click', closeNav));
+    // Close when clicking real navigation links (not submenu toggles)
+    document.querySelectorAll('.primary-nav a:not([data-nav-menu-toggle])')
+      .forEach((a) => a.addEventListener('click', closeNav));
     // Close on outside click
-    document.addEventListener('click', (e) => {
+    const outsideHandler = (e) => {
       const nav = document.querySelector('.primary-nav');
       if (!nav) return;
       if (headerEl.classList.contains('nav-open') && !nav.contains(e.target) && !mobileBtn.contains(e.target)) {
         closeNav();
       }
-    });
+    };
+    // Use pointerdown for more reliable touch behavior, fallback to click
+    document.addEventListener('pointerdown', outsideHandler, { passive: true });
+    document.addEventListener('click', outsideHandler);
     // Close on Esc
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNav(); });
+    // Close on hash change (after in-page navigation)
+    window.addEventListener('hashchange', closeNav);
+    // Close if resized to desktop
+    window.addEventListener('resize', () => { if (window.innerWidth > 720) closeNav(); });
   }
 
   // Smooth scroll for in-page anchors
