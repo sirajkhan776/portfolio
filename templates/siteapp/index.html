@@ -92,52 +92,74 @@
 
   <section id="projects">
     <h2>Projects</h2>
-    <div class="cards" data-stagger="100">
-      {% for project in projects %}
-        <article class="card reveal">
-          {% if project.image_url %}
-            <img src="{{ project.image_url }}" alt="{{ project.title }}" />
-          {% endif %}
-          <div class="card-body">
-            <h3>{{ project.title }}</h3>
-            <p>{{ project.description }}</p>
-            <div class="meta">
-              {% if project.project_url %}<a href="{{ project.project_url }}" target="_blank" rel="noopener">Live</a>{% endif %}
-              {% if project.repo_url %}<a href="{{ project.repo_url }}" target="_blank" rel="noopener">Repo</a>{% endif %}
-            </div>
-            {% if project.skills.all %}
-              <ul class="tags">
-                {% for s in project.skills.all %}
-                  <li>{{ s.name }}</li>
-                {% endfor %}
-              </ul>
+    {% if user.is_authenticated %}
+      <div class="cards" data-stagger="100">
+        {% for project in projects %}
+          <article class="card reveal">
+            {% if project.image_url %}
+              <img src="{{ project.image_url }}" alt="{{ project.title }}" />
             {% endif %}
+            <div class="card-body">
+              <h3>{{ project.title }}</h3>
+              <p>{{ project.description }}</p>
+              <div class="meta">
+                {% if project.project_url %}<a href="{{ project.project_url }}" target="_blank" rel="noopener">Live</a>{% endif %}
+                {% if project.repo_url %}<a href="{{ project.repo_url }}" target="_blank" rel="noopener">Repo</a>{% endif %}
+              </div>
+              {% if project.skills.all %}
+                <ul class="tags">
+                  {% for s in project.skills.all %}
+                    <li>{{ s.name }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </article>
+        {% empty %}
+          <p>No projects yet.</p>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="locked-section">
+        <div class="locked-overlay">
+          <div class="locked-box">
+            <span class="lock">🔒</span>
+            <span>Register to unlock Projects. <a href="{% url 'register' %}">Register</a> or <a href="{% url 'login' %}">Log in</a>.</span>
           </div>
-        </article>
-      {% empty %}
-        <p>No projects yet.</p>
-      {% endfor %}
-    </div>
+        </div>
+      </div>
+    {% endif %}
   </section>
 
   <section id="experience">
     <h2>Experience</h2>
-    <ul class="timeline" data-stagger="100">
-      {% for exp in experiences %}
-        <li class="reveal">
-          <div class="timeline-content">
-            <h3>{{ exp.role }} — {{ exp.company }}</h3>
-            <p class="dates">
-              {{ exp.start_date|date:"M Y" }} — {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}
-              {% if exp.location %} · {{ exp.location }}{% endif %}
-            </p>
-            <p>{{ exp.description }}</p>
+    {% if user.is_authenticated %}
+      <ul class="timeline" data-stagger="100">
+        {% for exp in experiences %}
+          <li class="reveal">
+            <div class="timeline-content">
+              <h3>{{ exp.role }} — {{ exp.company }}</h3>
+              <p class="dates">
+                {{ exp.start_date|date:"M Y" }} — {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}
+                {% if exp.location %} · {{ exp.location }}{% endif %}
+              </p>
+              <p>{{ exp.description }}</p>
+            </div>
+          </li>
+        {% empty %}
+          <p>No experience added.</p>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="locked-section">
+        <div class="locked-overlay">
+          <div class="locked-box">
+            <span class="lock">🔒</span>
+            <span>Register to unlock Experience. <a href="{% url 'register' %}">Register</a> or <a href="{% url 'login' %}">Log in</a>.</span>
           </div>
-        </li>
-      {% empty %}
-        <p>No experience added.</p>
-      {% endfor %}
-    </ul>
+        </div>
+      </div>
+    {% endif %}
   </section>
 
   <section id="skills">

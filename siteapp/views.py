@@ -18,8 +18,12 @@ def index(request):
     for s in skills:
         skills_by_category.setdefault(s.get_category_display(), []).append(s)
 
-    projects = Project.objects.prefetch_related("skills").all()
-    experiences = Experience.objects.all()
+    if request.user.is_authenticated:
+        projects = Project.objects.prefetch_related("skills").all()
+        experiences = Experience.objects.all()
+    else:
+        projects = Project.objects.none()
+        experiences = Experience.objects.none()
     services_management = Service.objects.filter(category="management")
     services_normal = Service.objects.filter(category="normal")
 
